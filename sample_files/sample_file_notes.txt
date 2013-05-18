@@ -1,0 +1,9 @@
+****Brainography Sample Files****
+
+Contained in this folder are several files to get the first-time user acquainted with the Brainography tool.
+
+Atlas File: 86-region human brain atlas, based on the cortical FreeSurfer atlas. This will be the volume loaded as the reference image
+
+Matrix_ACS.mat: Undirected, weighted connectivity matrix derived from probabilistic DTI fiber tracking; this should be set as you connectivity
+
+attributes.mat: contains 3 different variables of 86-entries (volumetrics, betweenness_centrality, local_efficiency). The user can choose from whether to display these values as surface coloring in an opaque "gummi" plot, or to encode the node size diameters to reflect the metric of choice. Volumetrics are computed directly from the atlas file. Betweenness centrality and local efficiency were computed using routines from the Brain Connectivity Toolbox (BCT).
