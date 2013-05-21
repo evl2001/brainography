@@ -64,8 +64,8 @@ M = N(N(end).currentVol);
 
 % if ~isempty(M.nodeScale)
 disp(M.nodeScale);
-set(handles.slider1,'Value',M.nodeScale);
-set(handles.edit4,'String',num2str(M.nodeScale));
+set(handles.slider1, 'Min', 0, 'Max', 20.0, 'Value', M.nodeScale);
+set(handles.edit4, 'String', num2str(M.nodeScale));
 % else
 %     set(handles.slider1,'Value',1.5);
 %     set(handles.edit4,'String','1.5');
@@ -75,9 +75,9 @@ if isempty(M.nodeProps) && ~isempty(M.brain_at)
     U = unique(M.brain_at(M.brain_at~=0));
     T = cell(size(U,1), 3);
     T(:,1) = num2cell(U);
-    set(handles.uitable1,'Data',T);
+    set(handles.uitable1, 'Data', T);
 elseif ~isempty(M.nodeProps) && ~isempty(M.brain_at)
-    set(handles.uitable1,'Data',M.nodeProps);
+    set(handles.uitable1, 'Data', M.nodeProps);
 end
 
 if ~isempty(M.nodeSchema)
@@ -86,7 +86,7 @@ else
     setSchema(defaultSchema,handles);
 end
 
-set(handles.popupmenu3,'Value',M.nodeStyle);
+set(handles.popupmenu3, 'Value', M.nodeStyle);
     
 % UIWAIT makes node_opts wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -116,12 +116,12 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-sV = get(handles.slider1,'Value');
+sV = get(handles.slider1, 'Value');
 M = guidata(handles.mainHandle);
 M(M(end).currentVol).nodeScale = sV;
-M(M(end).currentVol).nodeProps = get(handles.uitable1,'Data');
-M(M(end).currentVol).nodeStyle = get(handles.popupmenu3,'Value');
-M(M(end).currentVol).nodeSchema = getappdata(handles.output,'nodeSchema');
+M(M(end).currentVol).nodeProps = get(handles.uitable1, 'Data');
+M(M(end).currentVol).nodeStyle = get(handles.popupmenu3, 'Value');
+M(M(end).currentVol).nodeSchema = getappdata(handles.output, 'nodeSchema');
 guidata(handles.mainHandle, M);
 
 close(handles.output);

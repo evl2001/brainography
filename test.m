@@ -61,18 +61,21 @@ guidata(hObject, handles);
 setappdata(0,'tempHandle',hObject);
 
 N = guidata(handles.mainHandle);
-
-M = N(N(end).currentVol);
+currentVol = N(end).currentVol;
+M = N(currentVol);
 tmp = get(handles.uitable1,'Data');
 
 if isempty(M.regionvalues) && ~isempty(M.brain_at)
     U = unique(M.brain_at(M.brain_at~=0));
     T = cell(size(U,1), 5);
     T(:,1) = num2cell(U);
-    set(handles.uitable1,'Data',T);
 elseif ~isempty(M.regionvalues)
-    set(handles.uitable1,'Data',M.regionvalues);
+    T = M.regionvalues;
 end
+set(handles.uitable1,'Data',T);
+
+minVal = min(cell2mat(T(:,2)));
+maxVal = max(cell2mat(T(:,2)));
 
 try
     set(handles.pushbutton12,'BackgroundColor', M.singleColor);
@@ -83,7 +86,25 @@ if M.singleColorFlag
     set(handles.checkbox4,'Value',1);
     set(handles.popupmenu1,'Enable','off');
 end
+
+cmString = get(handles.popupmenu1,'String');
+if ~isempty(M.brain_colormapidx)
+    if (M.brain_colormapidx > 0) && (M.brain_colormapidx < size(cmString,1) )
+        set(handles.popupmenu1,'Value',M.brain_colormapidx);
+        eval(['rawMap = ' M.brain_colormap '(200);']);
+        setappdata(handles.output,'rawMap',rawMap);
+    else
+        rawMap = M.custom_colormap;
+        set(handles.popupmenu1,'Value',M.brain_colormapidx);
+        setappdata(handles.output,'rawMap',rawMap);
+    end
+end
+set(handles.slider1,'Min',-500000,'Max',500000,'Value',minVal,'SliderStep',[1/1000000 0.1]);
+set(handles.slider2,'Min',-500000,'Max',500000,'Value',maxVal,'SliderStep',[1/1000000 0.1]);
+set(handles.edit1,'String',num2str(minVal));
+set(handles.edit2,'String',num2str(maxVal));
     
+set(handles.popupmenu1,'Value',M.brain_colormapidx);
 % UIWAIT makes test wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
@@ -122,6 +143,13 @@ else
         end
         T(:,2) = num2cell(RV);
         set(handles.uitable1,'Data',T);
+        set(handles.edit1,'String',num2str(min(RV)));
+        set(handles.slider1,'Value',min(RV));
+        set(handles.edit2,'String',num2str(max(RV)));
+        set(handles.slider2,'Value',max(RV));
+        if ~get(handles.checkbox4,'Value')
+            setRVRGB(handles,getappdata(handles.output,'rawMap'));
+        end
     end
 end
 
@@ -149,6 +177,13 @@ if ~isempty(importRV)
             end
             T(:,2) = num2cell(RV);
             set(handles.uitable1,'Data',T);
+            set(handles.edit1,'String',num2str(min(RV)));
+            set(handles.slider1,'Value',min(RV));
+            set(handles.edit2,'String',num2str(max(RV)));
+            set(handles.slider2,'Value',max(RV));
+            if ~get(handles.checkbox4,'Value')
+                setRVRGB(handles,getappdata(handles.output,'rawMap'));
+            end
         end
     end
 end
@@ -216,9 +251,15 @@ function pushbutton8_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton8 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-M = guidata(handles.mainHandle);
-M(M(end).currentVol).regionvalues = get(handles.uitable1,'Data');
-guidata(handles.mainHandle,M);
+N = guidata(handles.mainHandle);
+currentVol = N(end).currentVol;
+M = N(currentVol);
+M.regionvalues = get(handles.uitable1,'Data');
+M.singleColorFlag = get(handles.checkbox4,'Value');
+disp(['M.singleColorFlag ' num2str(M.singleColorFlag)]);
+M.singleColor = get(handles.pushbutton12,'BackgroundColor');
+N(currentVol) = M;
+guidata(handles.mainHandle,N);
 close(handles.output);
 
 % --- Executes on button press in pushbutton10.
@@ -238,6 +279,13 @@ function pushbutton9_Callback(hObject, eventdata, handles)
 T = get(handles.uitable1,'Data');
 T(:,2) = num2cell([1:size(T,1)]');
 set(handles.uitable1,'Data',T);
+set(handles.edit1,'String','1');
+set(handles.edit2,'String',num2str(size(T,1)));
+set(handles.slider1,'Value',1);
+set(handles.slider2,'Value',size(T,1));
+if ~get(handles.checkbox4,'Value')
+    setRVRGB(handles,getappdata(handles.output,'rawMap'));
+end
 
 % --- Executes on button press in pushbutton11.
 function pushbutton11_Callback(hObject, eventdata, handles)
@@ -257,10 +305,27 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from popupmenu1
 cmVal=get(hObject,'Value');
 cmString=get(hObject,'String');
-waitfor(import_colormap);
-handles(handles(end).currentVol).brain_colormap=cmString{cmVal};
-handles(handles(end).currentVol).brain_colormapidx=cmVal;
+customOpt = size(cmString,1);
+if cmVal == customOpt
+    waitfor(import_colormap);
+    H = guidata(handles.mainHandle);
+    rawMap = H(H(end).currentVol).custom_colormap;
+    
+else
+    eval(['rawMap = ' cmString{cmVal} '(200);']);
+end
+setappdata(handles.output,'rawMap',rawMap);
+setRVRGB(handles,rawMap);
 guidata(hObject,handles);
+
+function setRVRGB(handles,rawMap)
+minVal = get(handles.slider1,'Value');
+maxVal = get(handles.slider2,'Value');
+rvTable = get(handles.uitable1,'Data');
+entriez = cell2mat(rvTable(:,2));
+rgbMapping = getRGBTriple(rawMap,minVal,maxVal,entriez);
+rvTable(:,3:5) = num2cell(rgbMapping);
+set(handles.uitable1,'Data',rvTable);
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu1_CreateFcn(hObject, eventdata, handles)
@@ -300,6 +365,36 @@ function checkbox4_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox4
+N = guidata(handles.mainHandle);
+currentVol = N(end).currentVol;
+M = N(currentVol);
+
+if get(hObject,'Value')
+    brain_at = M.brain_at;
+    
+    set(handles.pushbutton12,'Enable','on');
+    singleColor = get(handles.pushbutton12,'BackgroundColor');
+
+    uniqueRegions = unique(brain_at(find(brain_at~=0)));
+    regionvalues = cell(size(uniqueRegions,1),5);
+    regionvalues(:,1) = num2cell(uniqueRegions);
+%     regionvalues(:,2) = num2cell(ones(size(uniqueRegions,1),1));
+    regionvalues(:,3:5) = num2cell(repmat(singleColor,size(uniqueRegions,1),1));
+    
+    set(handles.popupmenu1,'Enable','off');
+    set(handles.edit1,'Enable','off');
+    set(handles.edit2,'Enable','off');
+    set(handles.slider1,'Enable','off');
+    set(handles.slider2,'Enable','off');
+else
+	set(handles.pushbutton12,'Enable','off');
+    set(handles.popupmenu1,'Enable','on');
+    set(handles.edit1,'Enable','on');
+    set(handles.edit2,'Enable','on');
+    set(handles.slider1,'Enable','on');
+    set(handles.slider2,'Enable','on');
+end
+guidata(hObject,handles);
 
 
 % --- Executes on button press in pushbutton12.
@@ -307,8 +402,14 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton12 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+V = uisetcolor(get(hObject,'BackgroundColor'));
+set(hObject,'BackgroundColor',V);
 
-
+regionvalues = get(handles.uitable1,'Data');
+numberROI = size(regionvalues,1);
+regionvalues(:,3:5) = num2cell(repmat(V,numberROI,1));
+regionvalues(:,2) = num2cell(ones(1,numberROI));
+set(handles.uitable1,'Data',regionvalues);
 
 function edit1_Callback(hObject, eventdata, handles)
 % hObject    handle to edit1 (see GCBO)
@@ -317,6 +418,13 @@ function edit1_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit1 as text
 %        str2double(get(hObject,'String')) returns contents of edit1 as a double
+minVal = str2double(get(hObject,'String'));
+maxVal = str2double(get(hObject,'String'));
+if minVal > maxVal
+    minVal = maxVal;
+    set(hObject,'String',num2str(minVal));
+end
+setRVRGB(handles,getappdata(handles.output,'rawMap'));
 
 
 % --- Executes during object creation, after setting all properties.
@@ -340,7 +448,15 @@ function slider1_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+sliderMin = get(hObject,'Value');
+sliderMax = get(hObject,'Value');
 
+if sliderMin > sliderMax
+    sliderMin = sliderMax;
+    set(hObject,'Value',sliderMin);
+end
+set(handles.edit1,'String',num2str(sliderMin));
+setRVRGB(handles,getappdata(handles.output,'rawMap'));
 
 % --- Executes during object creation, after setting all properties.
 function slider1_CreateFcn(hObject, eventdata, handles)
@@ -362,7 +478,13 @@ function edit2_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit2 as text
 %        str2double(get(hObject,'String')) returns contents of edit2 as a double
-
+minVal = str2double(get(hObject,'String'));
+maxVal = str2double(get(hObject,'String'));
+if minVal > maxVal
+    maxVal = minVal;
+    set(hObject,'String',num2str(maxVal));
+end
+setRVRGB(handles,getappdata(handles.output,'rawMap'));
 
 % --- Executes during object creation, after setting all properties.
 function edit2_CreateFcn(hObject, eventdata, handles)
@@ -385,6 +507,17 @@ function slider2_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+sliderMin = get(hObject,'Value');
+sliderMax = get(hObject,'Value');
+
+if sliderMin > sliderMax
+    sliderMax = sliderMin;
+    set(hObject,'Value',sliderMax);
+end
+
+set(handles.edit2,'String',num2str(sliderMax));
+
+setRVRGB(handles,getappdata(handles.output,'rawMap'));
 
 
 % --- Executes during object creation, after setting all properties.

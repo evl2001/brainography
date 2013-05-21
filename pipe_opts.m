@@ -89,7 +89,7 @@ if ~isempty(M.connectivityMatrix)
     set(handles.slider3,'Value',pipeCoupletThreshold);
     set(handles.edit2,'String',num2str(pipeCoupletThreshold));
     setappdata(handles.output,'pipeCoupletThreshold',pipeCoupletThreshold);
-    set(handles.slider1,'Value',M.pipeScale);
+    set(handles.slider1,'Value',M.pipeScale,'Min',0.01,'Max',20.0);
     set(handles.edit1,'String',num2str(M.pipeScale));
     set(handles.popupmenu3,'Value',M.pipeStyle);
     axes(handles.axes2);
@@ -104,13 +104,14 @@ if ~isempty(M.connectivityMatrix)
             pipeColorHyperCube = setSingletCube(handles,singlet,pipeColorHyperCube);
             setappdata(handles.output,'pipeColorHyperCube',pipeColorHyperCube);
         case 2
-            eval(['cMap = ' M.pipeColorMap '(150);']);
+            eval(['cMap = ' M.pipeColorMap '(200);']);
             set(gcf,'colormap', cMap);
             setappdata(handles.output,'cMapString',M.pipeColorMap);
             pipeColorHyperCube = setCmapCube(handles,cMap,pipeColorHyperCube);
             setappdata(handles.output,'pipeColorHyperCube',pipeColorHyperCube);
+            cmString = get(handles.popupmenu1,'String');
+            set(handles.popupmenu1,'Value',find(ismember(cmString,M.pipeColorMap)));
         case 3
-%             coupletCube = pipeColorHyperCube(:,:,:,3);
             if M.pipeCoupletThreshold > cmMax || M.pipeCoupletThreshold < cmMin
                 pipeCoupletThreshold = cmMin + (cmMax - cmMin)/2;
                 setappdata(handles.output,'pipeCoupletThreshold',pipeCoupletThreshold);
@@ -120,7 +121,6 @@ if ~isempty(M.connectivityMatrix)
             couplet = M.pipeCouplet;
             pipeColorHyperCube = setCoupletCube(handles,couplet,pipeCoupletThreshold,pipeColorHyperCube);
     end
-    
     setappdata(handles.output,'pipeColorHyperCube',pipeColorHyperCube);
     setappdata(handles.output,'pipeCoupletThreshold',pipeCoupletThreshold);
     setappdata(handles.output,'pipeCouplet',M.pipeCouplet);
@@ -176,10 +176,7 @@ end
 function pch = setCmapCube(handles,cMap,pch)
 CM = getappdata(handles.output,'CM');
 if ~isempty(CM)
-   rgbentriez = getRGBTriple(cMap,min(CM),max(CM),CM(:));
-%    rCM = reshape(rgbentriez(:,1),size(CM));
-%    gCM = reshape(rgbentriez(:,2),size(CM));
-%    bCM = reshape(rgbentriez(:,3),size(CM));
+   rgbentriez = getRGBTriple(cMap,min(min(CM)),max(max(CM)),CM(:));
    rgbCM = cat(3,reshape(rgbentriez(:,1),size(CM)),reshape(rgbentriez(:,2),size(CM)),reshape(rgbentriez(:,3),size(CM)));
    pch(:,:,:,2) = rgbCM;
 else
@@ -196,8 +193,8 @@ if ~isempty(CM)
     coupletCube = zeros([size(CM) 3]);
     for i=1:3
         tmp = coupletCube(:,:,i);
-        tmp(bigun) = couplet(1,i);
-        tmp(lilun) = couplet(2,i);
+        tmp(bigun) = couplet(2,i);
+        tmp(lilun) = couplet(1,i);
         coupletCube(:,:,i) = tmp;
     end
     pipeColorHyperCube(:,:,:,3) = coupletCube;
@@ -289,9 +286,13 @@ cMapValue = get(hObject,'Value');
 allCMap = get(hObject,'String');
 cMapString = allCMap{cMapValue};
 
-eval(['cMap = ' cMapString '(150);']);
+eval(['cMap = ' cMapString '(200);']);
 set(gcf,'ColorMap',cMap);
+pipeColorHyperCube = getappdata(handles.output,'pipeColorHyperCube');
+pipeColorHyperCube = setCmapCube(handles,cMap,pipeColorHyperCube);
+setappdata(handles.output,'pipeColorHyperCube',pipeColorHyperCube);
 setappdata(handles.output,'cMapString',cMapString);
+
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu1_CreateFcn(hObject, eventdata, handles)
@@ -407,8 +408,13 @@ if ~isempty(CM)
             setappdata(handles.output,'pipeColorHyperCube',pipeColorHyperCube);
         case 2
             cMapString = getappdata(handles.output,'cMapString');
-            eval(['cMap = ' cMapString '(150);']);
+            eval(['cMap = ' cMapString '(200);']);
             set(gcf,'colormap', cMap);
+            setappdata(handles.output,'cMapString',cMapString);
+            pipeColorHyperCube = setCmapCube(handles,cMap,pipeColorHyperCube);
+            setappdata(handles.output,'pipeColorHyperCube',pipeColorHyperCube);
+            cmString = get(handles.popupmenu1,'String');
+            set(handles.popupmenu1,'Value',find(ismember(cmString,cMapString)));
         case 3
             cmMax = max(max(CM)); cmMin = min(min(CM));
             pct = getappdata(handles.output,'pipeCoupletThreshold');

@@ -262,8 +262,8 @@ switch renderProps.pipeScheme
         CColorMat = renderProps.pipeColorHyperCube(:,:,:,3);
 end
 
-if renderProps.pipeStyle ==2
-    opacity = 0.5;
+if renderProps.pipeStyle==2
+    opacity = 0.25;
 else
     opacity = 1;
 end

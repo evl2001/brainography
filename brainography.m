@@ -23,7 +23,7 @@ dbstop if error
 
 % Edit the above text to modify the response to help brainography
 
-% Last Modified by GUIDE v2.5 13-May-2013 19:09:09
+% Last Modified by GUIDE v2.5 20-May-2013 18:14:39
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -72,7 +72,10 @@ initStruct.saveMovie = 0;
 initStruct.mainHandle = handleSave;
 initStruct.figstr = 'brainography1'; 
 set(handles.edit2,'String',initStruct.figstr);
+set(handles.checkbox1,'Enable','Off');
 set(handles.checkbox4,'Enable','Off');
+set(handles.checkbox6,'Enable','Off');
+set(handles.pushbutton14,'Enable','Off');
 set(handles.pushbutton8,'Enable','Off');
 set(handles.pushbutton10,'Enable','Off');
 guidata(hObject,initStruct);
@@ -101,11 +104,13 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-disp(guihandles(hObject));
-disp(handles);
-% EXECUTE FULL-SCALE IMAGE GENERATION USING GUIDATA(1:end-1)
-figure;
-BrainographyRender(handles,gca,2);
+if length(handles) > 1
+    disp(guihandles(hObject));
+    disp(handles);
+    % EXECUTE FULL-SCALE IMAGE GENERATION USING GUIDATA(1:end-1)
+    figure;
+    BrainographyRender(handles,gca,2);
+end
 
 function edit1_Callback(hObject, eventdata, handles)
 % hObject    handle to edit1 (see GCBO)
@@ -257,22 +262,36 @@ function pushbutton4_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % regionvalues;
-waitfor(test);  %regionvalues
+if length(handles) > 1
+    waitfor(test);  %regionvalues
+    H = guihandles(hObject);
+    handles = guidata(hObject);
+    scValue = handles(handles(end).currentVol).singleColorFlag;
+    set(H.checkbox6,'Value',scValue);
+    set(H.pushbutton14,'BackgroundColor',handles(handles(end).currentVol).singleColor);
+    if scValue
+        set(H.pushbutton14,'Enable','On');
+    else
+        set(H.pushbutton14,'Enable','Off');
+    end
+end
 
 % --- Executes on button press in pushbutton5.
 function pushbutton5_Callback(hObject, ~, handles) % Launch CM chooser
 % hObject    handle to pushbutton5 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-waitfor(cm_choose(hObject));
-H = guihandles(hObject);
-handles = guidata(hObject);
-if ~isempty(handles(handles(end).currentVol).connectivityMatrix)
-    set(H.checkbox4,'Enable','On');
-    set(H.pushbutton10,'Enable','On');% How to get connectivity matrix back to this GUI? With handle?
-else
-    set(H.checkbox4,'Enable','Off');
-    set(H.pushbutton10,'Enable','Off');
+if length(handles) > 1
+    waitfor(cm_choose(hObject));
+    H = guihandles(hObject);
+    handles = guidata(hObject);
+    if ~isempty(handles(handles(end).currentVol).connectivityMatrix)
+        set(H.checkbox4,'Enable','On');
+        set(H.pushbutton10,'Enable','On');% How to get connectivity matrix back to this GUI? With handle?
+    else
+        set(H.checkbox4,'Enable','Off');
+        set(H.pushbutton10,'Enable','Off');
+    end
 end
 
 % --- Executes on button press in checkbox1. Nodes on/off option
@@ -362,6 +381,17 @@ else
 end
 guidata(hObject,handles);
 
+function resetMyAxes(H)
+ac = allchild(H.axes1);
+for i = 1:size(ac,1)
+    delete(ac(i));
+end
+view([1 0 0]);
+clmo(handlem('light'));
+if get(H.checkbox5,'Value')
+    set(H.checkbox5,'Value',0);
+end
+
 
 % --- Executes on button press in pushbutton7.
 function pushbutton7_Callback(hObject, eventdata, handles)
@@ -373,22 +403,24 @@ H = guihandles(hObject);
 handles(end).saveMovie = 0;
 handles(end).saveImage = 0;
 %cla reset;
+resetMyAxes(H);
+
+
 if length(handles) > 1
     BrainographyRender(handles,H.axes1,3);
     view([1 1 0]);
 end
 
 function populateGUI(H, popVal)
+set(H.checkbox6,'Enable','On');
+set(H.checkbox1,'Enable','On');
+
+
 if ~isempty(popVal.opacity)
     set(H.edit1,'String',popVal.opacity);
 else
     set(H.edit1,'String','1.0');
 end
-% if ~isempty(popVal.brain_colormapidx)
-%     set(H.popupmenu2,'Value',popVal.brain_colormapidx);
-% else
-%     set(H.popupmenu2,'Value',1);
-% end
 if popVal.nodes
     set(H.checkbox1,'Value',1);
 else
@@ -401,22 +433,27 @@ else
 end
 if popVal.singleColorFlag
     set(H.checkbox6,'Value',1);
+    set(H.pushbutton14,'Enable','On');
 else
     set(H.checkbox6,'Value',0);
+    set(H.pushbutton14,'Enable','Off');
 end
-set(H.pushbutton14,'Value',popVal.singleColor);
+set(H.pushbutton14,'BackgroundColor',popVal.singleColor);
 
 
 
 function defaultGUI(H)
 set(H.edit1,'String','1.0');
-% set(H.popupmenu2,'Value',1);
+set(H.checkbox1,'Enable','On');
 set(H.checkbox1,'Value',0);
-% set(H.slider1,'Value',0);
 set(H.checkbox4,'Value',0);
+set(H.checkbox4,'Enable','Off');
+set(H.checkbox6,'Enable','On');
 set(H.checkbox6,'Value',0);
 set(H.pushbutton14,'BackgroundColor',[236/255 214/255 214/255]);
 %cla reset;
+resetMyAxes(H);
+
 % set(H.slider2,'Value',0);
 
 function newStruct = newRenderStruct
@@ -522,28 +559,29 @@ function checkbox6_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox6
-currentVol = handles(end).currentVol;
-mainHandles = guihandles(hObject);
-
-if get(hObject,'Value')
-    brain_at = handles(currentVol).brain_at;
+if length(handles) > 1
+    currentVol = handles(end).currentVol;
+    mainHandles = guihandles(hObject);
     
-    set(mainHandles.pushbutton14,'Enable','on');
-    singleColor = get(mainHandles.pushbutton14,'BackgroundColor');
-
-    uniqueRegions = unique(brain_at(find(brain_at~=0)));
-    regionvalues = cell(size(uniqueRegions,1),5);
-    regionvalues(:,1) = num2cell(uniqueRegions);
-    regionvalues(:,2) = num2cell(ones(size(uniqueRegions,1),1));
-    regionvalues(:,3:5) = num2cell(repmat(singleColor,size(uniqueRegions,1),1));
-    handles(currentVol).regionvalues = regionvalues;
-    handles(currentVol).singleColorFlag = 1;
-else
-    handles(currentVol).singleColorFlag = 0;
-    set(mainHandles.pushbutton14,'Enable','off');
+    if get(hObject,'Value')
+        brain_at = handles(currentVol).brain_at;
+        
+        set(mainHandles.pushbutton14,'Enable','on');
+        singleColor = get(mainHandles.pushbutton14,'BackgroundColor');
+        
+        uniqueRegions = unique(brain_at(find(brain_at~=0)));
+        regionvalues = cell(size(uniqueRegions,1),5);
+        regionvalues(:,1) = num2cell(uniqueRegions);
+        regionvalues(:,2) = num2cell(ones(size(uniqueRegions,1),1));
+        regionvalues(:,3:5) = num2cell(repmat(singleColor,size(uniqueRegions,1),1));
+        handles(currentVol).regionvalues = regionvalues;
+        handles(currentVol).singleColorFlag = 1;
+    else
+        handles(currentVol).singleColorFlag = 0;
+        set(mainHandles.pushbutton14,'Enable','off');
+    end
+    guidata(hObject,handles);
 end
-guidata(hObject,handles);
-
 % --- Executes on button press in pushbutton14.
 function pushbutton14_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton14 (see GCBO)
@@ -559,3 +597,58 @@ numberROI = size(regionvalues,1);
 regionvalues(:,3:5) = num2cell(repmat(V,numberROI,1));
 handles(currentVol).regionvalues = regionvalues;
 guidata(hObject,handles);
+
+
+% --------------------------------------------------------------------
+function uipushtool1_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uipushtool1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+[filename, pathname] = uigetfile({'*.mat'});
+
+if isequal(filename,0)
+    disp('User selected Cancel');
+elseif size(filename,1) > 1
+    disp('Please choose only one file at a time'); 
+else
+    renderstruct = whos('-file',[pathname filesep filename]); %Need error handling for non-symmetric and dim > 2
+    if length(renderstruct) == 1
+        matIn = load([pathname filesep filename]);
+        eval(['structIn = matIn.' renderstruct.name ';']);
+        if isRenderStruct(structIn)% && (length(structIn > 1))
+            H = guihandles(hObject);
+            guidata(hObject,structIn);
+            currentVol = structIn(end).currentVol;
+            populateGUI(H, structIn(currentVol));
+            addVolEntry = {'+ Add New Volume'};
+            for i=length(structIn)-1:-1:1
+                volNameList = [structIn(i).volString; addVolEntry];
+            end
+            set(H.popupmenu1,'String',volNameList);
+            set(H.popupmenu1,'Value',currentVol);
+        end
+    end
+end
+
+function rsTF = isRenderStruct(structIn)
+rsTF = 1;
+reqFields = fields(newRenderStruct);
+incFields = fields(structIn);
+for i=1:length(reqFields)
+    if ~ismember(reqFields{i},incFields)
+        rsTF = 0;
+        break;
+    end
+end
+
+
+% --------------------------------------------------------------------
+function uipushtool2_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uipushtool2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[filename, pathname] = uiputfile({'*.mat'});
+renderStruct = handles;
+save([pathname filesep filename],'renderStruct');
+disp(['Scene file saved to ' pathname filesep filename]);
