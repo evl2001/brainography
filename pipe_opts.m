@@ -69,6 +69,12 @@ else
     setappdata(handles.output,'sliderValue', 1.5);
 end
 
+if(M.pipeUniform)
+    set(handles.checkbox1,'Value',1);
+else
+    set(handles.checkbox1,'Value',0);
+end
+
 set(handles.popupmenu4, 'Value', M.pipeScheme);
 setPipeScheme(handles, M.pipeScheme);
 
@@ -244,6 +250,7 @@ M.pipeCoupletThreshold = get(handles.slider3,'Value');
 M.pipeColorMap = getappdata(handles.output,'cMapString');
 M.pipeColorHyperCube = getappdata(handles.output,'pipeColorHyperCube');
 M.pipeScheme = get(handles.popupmenu4,'Value');
+M.pipeUniform = get(handles.checkbox1,'Value');
 
 N(N(end).currentVol) = M;
 guidata(handles.mainHandle,N);

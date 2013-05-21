@@ -421,16 +421,29 @@ if ~isempty(popVal.opacity)
 else
     set(H.edit1,'String','1.0');
 end
+
 if popVal.nodes
     set(H.checkbox1,'Value',1);
+    set(H.pushbutton8,'Enable','On');
 else
     set(H.checkbox1,'Value',0);
+    set(H.pushbutton8,'Enable','Off');
 end
-if popVal.pipes
+
+if popVal.pipes && ~isempty(popVal.connectivityMatrix)
+    set(H.checkbox4,'Enable','On');
     set(H.checkbox4,'Value',1);
+    set(H.pushbutton10,'Enable','On');
 else
     set(H.checkbox4,'Value',0);
+    set(H.pushbutton10,'Enable','Off');
+    if isempty(popVal.connectivityMatrix)
+        set(H.checkbox4,'Enable','Off');
+    else
+        set(H.checkbox4,'Enable','On');
+    end
 end
+
 if popVal.singleColorFlag
     set(H.checkbox6,'Value',1);
     set(H.pushbutton14,'Enable','On');
@@ -438,6 +451,8 @@ else
     set(H.checkbox6,'Value',0);
     set(H.pushbutton14,'Enable','Off');
 end
+
+set(H.checkbox1,'Enable','On');
 set(H.pushbutton14,'BackgroundColor',popVal.singleColor);
 
 
@@ -451,10 +466,9 @@ set(H.checkbox4,'Enable','Off');
 set(H.checkbox6,'Enable','On');
 set(H.checkbox6,'Value',0);
 set(H.pushbutton14,'BackgroundColor',[236/255 214/255 214/255]);
-%cla reset;
+
 resetMyAxes(H);
 
-% set(H.slider2,'Value',0);
 
 function newStruct = newRenderStruct
 %Initialize new renderstruct
@@ -463,7 +477,7 @@ newStruct=struct('volString','','brain_at',[],'dim',[],'mat',[],'opacity',1.0, .
     'brain_colormapidx',1,'nodes',0,'pipes',0, 'connectivityMatrix',[], ...
     'nodeScale',2.5,'nodeSchema',[],'nodeProps',[],'nodeStyle',1,'pipeScale',1.5, ...
     'pipeScheme',1,'pipeColorHyperCube',[],'pipeCouplet',[rand(1,3);rand(1,3)], ...
-    'pipeColorMap','jet','pipeCoupletThreshold',50,'pipeStyle',1,'renderRes',[], ...
+    'pipeColorMap','jet','pipeCoupletThreshold',50,'pipeStyle',1,'pipeUniform',0,'renderRes',[], ...
     'currentVol',[],'saveImages',0,'saveMovie',0,'figstr','','mainHandle',[],'numberROI',[]);
 
 % -----Menu?------------
@@ -627,6 +641,8 @@ else
             end
             set(H.popupmenu1,'String',volNameList);
             set(H.popupmenu1,'Value',currentVol);
+        else
+            disp('Not a proper Brainography scene struct.');
         end
     end
 end

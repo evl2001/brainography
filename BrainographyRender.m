@@ -123,8 +123,6 @@ else  % Set default values if struct is empty
     
 end
 
-% uniqueRGB = unique(rawMap,'rows');
-
 if renderProps.singleColorFlag
     binaryVol = zeros(size(brain_at_bb));
     for i=1:size(numberROI,1)
@@ -256,7 +254,7 @@ end
 switch renderProps.pipeScheme
     case 1 %single color
         CColorMat = renderProps.pipeColorHyperCube(:,:,:,1);
-    case 2 %color map, must be mapped
+    case 2 %color map
         CColorMat = renderProps.pipeColorHyperCube(:,:,:,2);
     case 3 %2-color
         CColorMat = renderProps.pipeColorHyperCube(:,:,:,3);
@@ -271,13 +269,15 @@ end
 for i=1:size(C,2)
     if i>1
         for j=(i-1):-1:1
-            if C(j,i)>0
-%                 kkc = kkc + 1;
-                P1 = [points(i,1),points(i,2), points(i,3)];
-                P2 = [points(j,1),points(j,2), points(j,3)];
-                %plot3([P1(1) P2(1)],[P1(2) P2(2)],[P1(3) P2(3)]);
-                 [XX,YY,ZZ] = cylinder2P(line_fact*C(i,j),100,P1,P2);
-                 surf(XX,YY,ZZ,'FaceColor',squeeze(CColorMat(j,i,:))','EdgeColor','none','FaceAlpha',opacity);
+            if C(j,i) > 0
+                P1 = [points(i,1), points(i,2), points(i,3)];
+                P2 = [points(j,1), points(j,2), points(j,3)];
+                if renderProps.pipeUniform
+                    [XX,YY,ZZ] = cylinder2P(line_fact, 100, P1, P2);
+                else 
+                    [XX,YY,ZZ] = cylinder2P(line_fact*C(i,j), 100, P1, P2);
+                end
+                surf(XX,YY,ZZ, 'FaceColor', squeeze(CColorMat(j,i,:))', 'EdgeColor', 'none', 'FaceAlpha', opacity);
             end
         end
     end

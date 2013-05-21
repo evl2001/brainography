@@ -352,17 +352,18 @@ if isequal(filename,0)
 elseif size(filename,1) > 1
     disp('Please choose only one file at a time'); 
 else
-    regionvar = whos('-file',[pathname filesep filename]); %Need error handling for non-symmetric and dim > 2
-    if size(regionvar,1) < 2
+    T = get(handles.uitable1,'Data');
+    lobe_ids = whos('-file',[pathname filesep filename]); %Need error handling for non-symmetric and dim > 2
+    if size(lobe_ids,1) < 2
         matIn = load([pathname filesep filename]);
-        eval(['LUT = matIn.' regionvar.name ';']);
-        if length(RV) ~= size(T,1)
-            disp(['Imported mat wrong size: expecting ' num2str(size(T,1)) ', found ' num2str(length(RV))]);
+        eval(['LUT = matIn.' lobe_ids.name ';']);
+        if length(LUT) ~= size(T,1)
+            disp(['Imported mat wrong size: expecting ' num2str(size(T,1)) ', found ' num2str(length(LUT))]);
         else
-            if size(RV,2) == size(T,1)
-                RV = RV';
+            if size(LUT,2) == size(T,1)
+                LUT = LUT';
             end
-            T(:,3) = num2cell(RV);
+            T(:,3) = num2cell(LUT);
             set(handles.uitable1,'Data',T);
         end
     else
