@@ -213,7 +213,7 @@ switch renderProps.nodeStyle
         opacity = 1.0;
         singleRender = 1;
     case 2
-        opacity = 0.08;
+        opacity = 0.25;
         singleRender = 1;
     case 3
         opacity(1) = 1.0;
@@ -230,7 +230,7 @@ for i = 1:length(lobes)
         
         if singleRender
             [x,y,z]=ellipsoid(points(i,1), points(i,2), points(i,3), sznode(i), sznode(i), sznode(i), 200);
-            surf(x,y,z,'FaceColor',markercolor,'EdgeColor',edgecolor);
+            surf(x,y,z,'FaceColor',markercolor,'EdgeColor',edgecolor,'FaceAlpha',opacity);
         else
             sznode0 = 0.7*sznode(i);
             [x0,y0,z0]=ellipsoid(points(i,1), points(i,2), points(i,3), sznode0, sznode0, sznode0, 200);
@@ -245,11 +245,14 @@ end
 function renderPipes(renderProps, points, settingsStruct)
 
 C = renderProps.connectivityMatrix;
-if settingsStruct.renderRes == 1
-    line_fact = renderProps.pipeScale/max(C(:));
+
+
+if renderProps.pipeUniform
+    line_fact = (renderProps.pipeScale/settingsStruct.renderRes)/2.5;
 else
     line_fact = (renderProps.pipeScale/settingsStruct.renderRes)/max(C(:));
 end
+
 
 switch renderProps.pipeScheme
     case 1 %single color
