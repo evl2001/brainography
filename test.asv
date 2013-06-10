@@ -258,7 +258,6 @@ M.regionvalues = get(handles.uitable1,'Data');
 M.singleColorFlag = get(handles.checkbox4,'Value');
 disp(['M.singleColorFlag ' num2str(M.singleColorFlag)]);
 M.singleColor = get(handles.pushbutton12,'BackgroundColor');
-M.brain_colormapidx = get(handles.popupmenu1, 'Value');
 N(currentVol) = M;
 guidata(handles.mainHandle,N);
 close(handles.output);
