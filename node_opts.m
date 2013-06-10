@@ -117,12 +117,23 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 sV = get(handles.slider1, 'Value');
-M = guidata(handles.mainHandle);
-M(M(end).currentVol).nodeScale = sV;
-M(M(end).currentVol).nodeProps = get(handles.uitable1, 'Data');
-M(M(end).currentVol).nodeStyle = get(handles.popupmenu3, 'Value');
-M(M(end).currentVol).nodeSchema = getappdata(handles.output, 'nodeSchema');
-guidata(handles.mainHandle, M);
+N = guidata(handles.mainHandle);
+M = N(N(end).currentVol);
+M.nodeScale = sV;
+M.nodeProps = get(handles.uitable1, 'Data');
+M.nodeStyle = get(handles.popupmenu3, 'Value');
+M.nodeSchema = getappdata(handles.output, 'nodeSchema');
+
+if size(M.nodeSchema,1) < max(cell2mat(M.nodeProps(:,3)))
+    diffSch = max(cell2mat(M.nodeProps(:,3))) - size(M.nodeSchema,1);
+    appSch = rand(diffSch,3);
+    M.nodeSchema = [M.nodeSchema; appSch];
+    disp('Correcting node schema');
+end
+    
+
+N(N(end).currentVol) = M;
+guidata(handles.mainHandle, N);
 
 close(handles.output);
 

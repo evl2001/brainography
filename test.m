@@ -542,9 +542,9 @@ function checkbox5_Callback(hObject, eventdata, handles)
 N = guidata(handles.mainHandle);
 M = N(N(end).currentVol);
 if get(hObject,'Value') %LUT mode on
-    set(handles.pushbutton3,'Enable','Off');
-    set(handles.pushbutton4,'Enable','Off');
-    set(handles.pushbutton9,'Enable','Off');
+%     set(handles.pushbutton3,'Enable','Off');
+%     set(handles.pushbutton4,'Enable','Off');
+%     set(handles.pushbutton9,'Enable','Off');
     set(handles.checkbox4,'Enable','Off');
     set(handles.pushbutton12,'Enable','Off');
     set(handles.popupmenu1,'Enable','Off');
@@ -557,9 +557,9 @@ if get(hObject,'Value') %LUT mode on
     set(handles.pushbutton7,'Enable','On');
     set(handles.pushbutton10,'Enable','On');
 else %LUT mode off
-    set(handles.pushbutton3,'Enable','On');
-    set(handles.pushbutton4,'Enable','On');
-    set(handles.pushbutton9,'Enable','On');
+%     set(handles.pushbutton3,'Enable','On');
+%     set(handles.pushbutton4,'Enable','On');
+%     set(handles.pushbutton9,'Enable','On');
     set(handles.checkbox4,'Enable','On');
     set(handles.pushbutton12,'Enable','On');
     set(handles.popupmenu1,'Enable','On');

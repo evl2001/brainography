@@ -23,7 +23,7 @@ dbstop if error
 
 % Edit the above text to modify the response to help brainography
 
-% Last Modified by GUIDE v2.5 20-May-2013 18:14:39
+% Last Modified by GUIDE v2.5 09-Jun-2013 18:42:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,29 +56,37 @@ function brainography_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for brainography
 handles.output = hObject;
 % setappdata(handles.output,'mainHandle',handles.output);
-handleSave = handles.output;
 setappdata(0,'mainHandle',hObject);
 % Update handles structure
 % guidata(hObject, handles);
 % Reserve initial guidata with "Settings" for rendering that can later be
 % modified by the user and won't be deleted if the
 % guidata(hObject,struct('volString','Settings','brain_at',[],'renderRes',2,'currentVol',1,'saveImages',0,'saveMovie',0));
+
+initStruct = ui_initialize(handles);
+guidata(hObject,initStruct);
+
+function  initStruct = ui_initialize(handles)
 initStruct = newRenderStruct;
 initStruct.volString = 'Settings';
 initStruct.renderRes = 2;
 initStruct.currentVol = 1;
 initStruct.saveImages = 0;
 initStruct.saveMovie = 0;
-initStruct.mainHandle = handleSave;
+initStruct.mainHandle = handles;
 initStruct.figstr = 'brainography1'; 
-set(handles.edit2,'String',initStruct.figstr);
-set(handles.checkbox1,'Enable','Off');
-set(handles.checkbox4,'Enable','Off');
-set(handles.checkbox6,'Enable','Off');
-set(handles.pushbutton14,'Enable','Off');
-set(handles.pushbutton8,'Enable','Off');
-set(handles.pushbutton10,'Enable','Off');
-guidata(hObject,initStruct);
+set(handles.edit2, 'String', initStruct.figstr);
+set(handles.popupmenu1,'Value',1);
+set(handles.popupmenu1,'String',{'+ Add New Volume'});
+defaultGUI(handles);
+
+% set(handles.edit2,'String',initStruct.figstr);
+% set(handles.checkbox1,'Enable','Off');
+% set(handles.checkbox4,'Enable','Off');
+% set(handles.checkbox6,'Enable','Off');
+% set(handles.pushbutton14,'Enable','Off');
+% set(handles.pushbutton8,'Enable','Off');
+% set(handles.pushbutton10,'Enable','Off');
 
 % UIWAIT makes brainography wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -143,9 +151,9 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-H=guihandles(hObject);
-volVal=get(H.popupmenu1,'Value');
-volString=get(H.popupmenu1,'String');
+H = guihandles(hObject);
+volVal = get(H.popupmenu1,'Value');
+volString = get(H.popupmenu1,'String');
 
 if volVal ~= size(volString,1)  %add-volume option should always be last option in menu
     % clear/delete popupmenu entry
@@ -200,10 +208,10 @@ if volVal == size(volString,1)
         else
             imgChoice=1;
         end
-        vox=spm_read_vols(V(imgChoice));
+        vox=flipdim(spm_read_vols(V(imgChoice)),1);
         %if first volume chosen, this sets precedent
         if length(handles) == 1
-            disp('First Volume');
+%             disp('First Volume');
             handles(end).dim = V(1).dim;
             handles(end).mat = V(1).mat;
         end
@@ -287,9 +295,11 @@ if length(handles) > 1
     handles = guidata(hObject);
     if ~isempty(handles(handles(end).currentVol).connectivityMatrix)
         set(H.checkbox4,'Enable','On');
-        set(H.pushbutton10,'Enable','On');% How to get connectivity matrix back to this GUI? With handle?
+        set(H.checkbox4,'Value',0);
+        set(H.pushbutton10,'Enable','Off');% How to get connectivity matrix back to this GUI? With handle?
     else
         set(H.checkbox4,'Enable','Off');
+        set(H.checkbox4,'Value',0);
         set(H.pushbutton10,'Enable','Off');
     end
 end
@@ -401,14 +411,14 @@ function pushbutton7_Callback(hObject, eventdata, handles)
 
 H = guihandles(hObject);
 handles(end).saveMovie = 0;
-handles(end).saveImage = 0;
+handles(end).saveImages = 0;
 %cla reset;
 resetMyAxes(H);
 
 
 if length(handles) > 1
     BrainographyRender(handles,H.axes1,3);
-    view([1 1 0]);
+%     view([1 1 0]);
 end
 
 function populateGUI(H, popVal)
@@ -458,34 +468,35 @@ set(H.pushbutton14,'BackgroundColor',popVal.singleColor);
 
 
 function defaultGUI(H)
+
 set(H.edit1,'String','1.0');
+
 set(H.checkbox1,'Enable','On');
 set(H.checkbox1,'Value',0);
-set(H.checkbox4,'Value',0);
+
 set(H.checkbox4,'Enable','Off');
+set(H.checkbox4,'Value',0);
+
+set(H.pushbutton10, 'Enable', 'Off');
+
 set(H.checkbox6,'Enable','On');
 set(H.checkbox6,'Value',0);
+
 set(H.pushbutton14,'BackgroundColor',[236/255 214/255 214/255]);
+set(H.pushbutton14,'Enable','Off');
 
 resetMyAxes(H);
 
 
-function newStruct = newRenderStruct
-%Initialize new renderstruct
-newStruct=struct('volString','','brain_at',[],'dim',[],'mat',[],'opacity',1.0, ...
-    'regionvalues',[],'singleColorFlag',0,'singleColor',[236/255 214/255 214/255],'brain_colormap','bone','custom_colormap',[], ...
-    'brain_colormapidx',1,'nodes',0,'pipes',0, 'connectivityMatrix',[], ...
-    'nodeScale',2.5,'nodeSchema',[],'nodeProps',[],'nodeStyle',1,'pipeScale',1.5, ...
-    'pipeScheme',1,'pipeColorHyperCube',[],'pipeCouplet',[rand(1,3);rand(1,3)], ...
-    'pipeColorMap','jet','pipeCoupletThreshold',50,'pipeStyle',1,'pipeUniform',0,'renderRes',[], ...
-    'currentVol',[],'saveImages',0,'saveMovie',0,'figstr','','mainHandle',[],'numberROI',[]);
-
-% -----Menu?------------
-function Untitled_1_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
+% function newStruct = newRenderStruct
+% %Initialize new renderstruct
+% newStruct=struct('volString','','brain_at',[],'dim',[],'mat',[],'opacity',1.0, ...
+%     'regionvalues',[],'singleColorFlag',0,'singleColor',[236/255 214/255 214/255],'brain_colormap','bone','custom_colormap',[], ...
+%     'brain_colormapidx',1,'nodes',0,'pipes',0, 'connectivityMatrix',[], ...
+%     'nodeScale',2.5,'nodeSchema',[],'nodeProps',[],'nodeStyle',1,'pipeScale',1.5, ...
+%     'pipeScheme',1,'pipeColorHyperCube',[],'pipeCouplet',[rand(1,3);rand(1,3)], ...
+%     'pipeColorMap','jet','pipeCoupletThreshold',50,'pipeStyle',1,'pipeUniform',0,'renderRes',[], ...
+%     'currentVol',[],'saveImages',0,'saveMovie',0,'figstr','','mainHandle',[],'numberROI',[]);
 
 % --- Executes on button press in pushbutton8. Launch Nodes Advanced
 % Settings
@@ -635,9 +646,9 @@ else
             guidata(hObject,structIn);
             currentVol = structIn(end).currentVol;
             populateGUI(H, structIn(currentVol));
-            addVolEntry = {'+ Add New Volume'};
+            volNameList = {'+ Add New Volume'};
             for i=length(structIn)-1:-1:1
-                volNameList = [structIn(i).volString; addVolEntry];
+                volNameList = [structIn(i).volString; volNameList];
             end
             set(H.popupmenu1,'String',volNameList);
             set(H.popupmenu1,'Value',currentVol);
@@ -668,3 +679,16 @@ function uipushtool2_ClickedCallback(hObject, eventdata, handles)
 renderStruct = handles;
 save([pathname filesep filename],'renderStruct');
 disp(['Scene file saved to ' pathname filesep filename]);
+
+
+% --------------------------------------------------------------------
+function uipushtool3_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uipushtool3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+H = guihandles(hObject);
+initStruct = ui_initialize(H);
+guidata(hObject, initStruct);
+set(H.popupmenu1,'Value',1);
+set(H.popupmenu1,'String',{'+ Add New Volume'});
+defaultGUI(H);
