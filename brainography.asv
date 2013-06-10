@@ -588,21 +588,20 @@ if length(handles) > 1
     currentVol = handles(end).currentVol;
     mainHandles = guihandles(hObject);
     
-    if get(hObject,'Value')
+    if get(hObject,'Value') 
         set(mainHandles.pushbutton14,'Enable','on');
         singleColor = get(mainHandles.pushbutton14,'BackgroundColor');
         
         if isempty(handles(currentVol).regionvalues)
             brain_at = handles(currentVol).brain_at;
-            uniqueRegions = unique(brain_at(find(brain_at~=0)));
-            regionvalues = cell(size(uniqueRegions,1),5);
-            regionvalues(:,1) = num2cell(uniqueRegions);
-            regionvalues(:,2) = num2cell(ones(size(uniqueRegions,1),1));
+        uniqueRegions = unique(brain_at(find(brain_at~=0)));
+        regionvalues = cell(size(uniqueRegions,1),5);
+        regionvalues(:,1) = num2cell(uniqueRegions);
+        regionvalues(:,2) = num2cell(ones(size(uniqueRegions,1),1));
         else
-            regionvalues = handles(currentVol).regionvalues;
-        end
+            regionvalues = handles(currentV
         
-        regionvalues(:,3:5) = num2cell(repmat(singleColor,size(regionvalues,1),1));
+        regionvalues(:,3:5) = num2cell(repmat(singleColor,size(uniqueRegions,1),1));
         handles(currentVol).regionvalues = regionvalues;
         handles(currentVol).singleColorFlag = 1;
     else

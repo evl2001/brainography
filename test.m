@@ -74,8 +74,13 @@ elseif ~isempty(M.regionvalues)
 end
 set(handles.uitable1,'Data',T);
 
-minVal = min(cell2mat(T(:,2)));
-maxVal = max(cell2mat(T(:,2)));
+if isempty(M.brain_colormaprange)
+    minVal = min(cell2mat(T(:,2)));
+    maxVal = max(cell2mat(T(:,2)));
+else
+    minVal = M.brain_colormaprange(1);
+    maxVal = M.brain_colormaprange(2);
+end
 
 try
     set(handles.pushbutton12,'BackgroundColor', M.singleColor);
@@ -259,6 +264,9 @@ M.singleColorFlag = get(handles.checkbox4,'Value');
 disp(['M.singleColorFlag ' num2str(M.singleColorFlag)]);
 M.singleColor = get(handles.pushbutton12,'BackgroundColor');
 M.brain_colormapidx = get(handles.popupmenu1, 'Value');
+M.brain_colormaprange(1) = str2num(get(handles.edit1,'String'));
+M.brain_colormaprange(2) = str2num(get(handles.edit2,'String'));
+
 N(currentVol) = M;
 guidata(handles.mainHandle,N);
 close(handles.output);
@@ -372,17 +380,19 @@ currentVol = N(end).currentVol;
 M = N(currentVol);
 
 if get(hObject,'Value')
-    brain_at = M.brain_at;
+%     brain_at = M.brain_at;
     
     set(handles.pushbutton12,'Enable','on');
     singleColor = get(handles.pushbutton12,'BackgroundColor');
 
-    uniqueRegions = unique(brain_at(find(brain_at~=0)));
-    regionvalues = cell(size(uniqueRegions,1),5);
-    regionvalues(:,1) = num2cell(uniqueRegions);
+%     uniqueRegions = unique(brain_at(find(brain_at~=0)));
+%     regionvalues = cell(size(uniqueRegions,1),5);
+%     regionvalues(:,1) = num2cell(uniqueRegions);
 %     regionvalues(:,2) = num2cell(ones(size(uniqueRegions,1),1));
-    regionvalues(:,3:5) = num2cell(repmat(singleColor,size(uniqueRegions,1),1));
-    
+    T = get(handles.uitable1,'Data');
+    T(:,3:5) = num2cell(repmat(singleColor,size(T,1),1));
+
+    set(handles.uitable1,'Data',T);
     set(handles.popupmenu1,'Enable','off');
     set(handles.edit1,'Enable','off');
     set(handles.edit2,'Enable','off');
@@ -410,7 +420,7 @@ set(hObject,'BackgroundColor',V);
 regionvalues = get(handles.uitable1,'Data');
 numberROI = size(regionvalues,1);
 regionvalues(:,3:5) = num2cell(repmat(V,numberROI,1));
-regionvalues(:,2) = num2cell(ones(1,numberROI));
+% regionvalues(:,2) = num2cell(ones(1,numberROI));
 set(handles.uitable1,'Data',regionvalues);
 
 function edit1_Callback(hObject, eventdata, handles)
@@ -420,12 +430,13 @@ function edit1_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit1 as text
 %        str2double(get(hObject,'String')) returns contents of edit1 as a double
-minVal = str2double(get(hObject,'String'));
-maxVal = str2double(get(hObject,'String'));
+minVal = str2double(get(hObject, 'String'));
+maxVal = str2double(get(handles.edit2, 'String'));
 if minVal > maxVal
     minVal = maxVal;
-    set(hObject,'String',num2str(minVal));
+    set(hObject, 'String', num2str(minVal));
 end
+set(handles.slider1, 'Value', minVal);
 setRVRGB(handles,getappdata(handles.output,'rawMap'));
 
 
@@ -440,7 +451,6 @@ function edit1_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 % --- Executes on slider movement.
 function slider1_Callback(hObject, eventdata, handles)
@@ -480,12 +490,13 @@ function edit2_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit2 as text
 %        str2double(get(hObject,'String')) returns contents of edit2 as a double
-minVal = str2double(get(hObject,'String'));
-maxVal = str2double(get(hObject,'String'));
+minVal = str2double(get(handles.edit1, 'String'));
+maxVal = str2double(get(hObject, 'String'));
 if minVal > maxVal
     maxVal = minVal;
-    set(hObject,'String',num2str(maxVal));
+    set(hObject, 'String', num2str(maxVal));
 end
+set(handles.slider2, 'Value', maxVal);
 setRVRGB(handles,getappdata(handles.output,'rawMap'));
 
 % --- Executes during object creation, after setting all properties.
@@ -514,12 +525,12 @@ sliderMax = get(hObject,'Value');
 
 if sliderMin > sliderMax
     sliderMax = sliderMin;
-    set(hObject,'Value',sliderMax);
+    set(hObject, 'Value', sliderMax);
 end
 
-set(handles.edit2,'String',num2str(sliderMax));
+set(handles.edit2, 'String', num2str(sliderMax));
 
-setRVRGB(handles,getappdata(handles.output,'rawMap'));
+setRVRGB(handles, getappdata(handles.output, 'rawMap'));
 
 
 % --- Executes during object creation, after setting all properties.
