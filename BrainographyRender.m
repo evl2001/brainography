@@ -17,7 +17,6 @@ end
 renderProps = handles(1:end-1);
 settingsStruct = handles(end);
 
-
 axes(axisHandle);
 set(gca,'DataAspectRatio',[1 1 1]);
 hold on;

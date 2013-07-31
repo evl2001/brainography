@@ -117,7 +117,7 @@ if length(handles) > 1
     disp(handles);
     % EXECUTE FULL-SCALE IMAGE GENERATION USING GUIDATA(1:end-1)
     figure;
-    BrainographyRender(handles,gca,2);
+    BrainographyRender(handles,gca,1);
 end
 
 function edit1_Callback(hObject, eventdata, handles)
