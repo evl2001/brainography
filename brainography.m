@@ -217,7 +217,7 @@ if volVal == size(volString,1)
             handles(end).dim = Vdim;
             handles(end).mat = Vmat;
         end
-        if ~isequal(handles(end).dim, V.dim) || ~isequal(handles(end).mat, Vmat)
+        if ~isequal(handles(end).dim, Vdim) || ~isequal(handles(end).mat, Vmat)
             %         end
             disp('Volume dimensions or orientation do not agree with previously loaded images.');
         else
