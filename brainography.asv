@@ -208,16 +208,14 @@ if volVal == size(volString,1)
         else
             imgChoice=1;
         end
-        vox=flipdim(V.img(:,:,:,imgChoice),1);
-        Vmat = [V.hdr.hist.srow_x; V.hdr.hist.srow_y; V.hdr.hist.srow_z; 0 0 0 1];
-        Vdim = V.hdr.dime.dim(2:4);
+        vox=flipdim(load_,1);
         %if first volume chosen, this sets precedent
         if length(handles) == 1
 %             disp('First Volume');
-            handles(end).dim = Vdim;
-            handles(end).mat = Vmat;
+            handles(end).dim = V(1).dim;
+            handles(end).mat = V(1).mat;
         end
-        if ~isequal(handles(end).dim, V.dim) || ~isequal(handles(end).mat, Vmat)
+        if ~isequal(handles(end).dim, V(1).dim) || ~isequal(handles(end).mat, V(1).mat)
             %         end
             disp('Volume dimensions or orientation do not agree with previously loaded images.');
         else
