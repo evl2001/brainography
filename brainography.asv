@@ -208,14 +208,16 @@ if volVal == size(volString,1)
         else
             imgChoice=1;
         end
-        vox=flipdim(load_,1);
+        vox=flipdim(V.img(:,:,:,imgChoice),1);
+        Vmat = [V.hdr.hist.srow_x; V.hdr.hist.srow_y; V.hdr.hist.srow_z; 0 0 0 1];
+        Vdim = V.hdr.dime.dim(2:4);
         %if first volume chosen, this sets precedent
         if length(handles) == 1
 %             disp('First Volume');
-            handles(end).dim = V(1).dim;
-            handles(end).mat = V(1).mat;
+            handles(end).dim = Vdim;
+            handles(end).mat = Vmat;
         end
-        if ~isequal(handles(end).dim, V(1).dim) || ~isequal(handles(end).mat, V(1).mat)
+        if ~isequal(handles(end).dim, Vdim) || ~isequal(handles(end).mat, Vmat)
             %         end
             disp('Volume dimensions or orientation do not agree with previously loaded images.');
         else
@@ -546,9 +548,12 @@ function checkbox5_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox5
 clval = get(hObject, 'Value');
-clmo(handlem('light'))
+% clmo(handlem('light'))
 if clval
-    camlight left;
+    K=camlight('left');
+%     guidata(
+else
+    set(K,'Visible','Off');
 end
     
 

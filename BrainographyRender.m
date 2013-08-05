@@ -52,27 +52,29 @@ end
 
 if settingsStruct.saveImages
     % create views, videos and save them
+    set(fig, 'Color', [1 1 1]);
+        axis off;
     view([0 0 1]);
-    camlight left
+    K=camlight('left');
     I = getframe(gcf);
     imwrite(I.cdata, [figstr '_axial.tif']);
-    clmo(handlem('light'))
+    set(K,'Visible','Off');
     view([1 0 0]);
-    camlight left
-    I = getframe(gcf);
-    imwrite(I.cdata, [figstr '_sagittal.tif']);
-    clmo(handlem('light'))
-    view([0 1 0]);
-    camlight left
+    K=camlight('left');
     I = getframe(gcf);
     imwrite(I.cdata, [figstr '_coronal.tif']);
-    clmo(handlem('light'))
+    set(K,'Visible','Off');
+    view([0 1 0]);
+    K=camlight('left');
+    I = getframe(gcf);
+    imwrite(I.cdata, [figstr '_sagittal.tif']);
+    set(K,'Visible','Off');
 end
 
 if settingsStruct.saveMovie
 %     zoom(1.5);
     [az,el] = view([1 0 0]);
-    camlight left
+    K=camlight('left');
     rot = [0:5:360];
     set(fig, 'Color', [1 1 1]);
     rotate3d;
@@ -81,8 +83,8 @@ if settingsStruct.saveMovie
     axis vis3d;
     for i = 1:length(rot)
         view(rot(i), el);
-        clmo(handlem('light'))
-        camlight left
+        set(K,'Visible','Off');
+        K=camlight('left');
         M(i) = getframe(gcf);
     end 
     movie2avi(M,[figstr '.avi'],'fps', 5); 

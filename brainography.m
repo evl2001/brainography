@@ -66,6 +66,7 @@ setappdata(0,'mainHandle',hObject);
 initStruct = ui_initialize(handles);
 guidata(hObject,initStruct);
 
+
 function  initStruct = ui_initialize(handles)
 initStruct = newRenderStruct;
 initStruct.volString = 'Settings';
@@ -548,9 +549,13 @@ function checkbox5_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox5
 clval = get(hObject, 'Value');
-clmo(handlem('light'))
+H = guihandles(hObject);
+% clmo(handlem('light'))
 if clval
-    camlight left;
+    K=camlight('left');
+    setappdata(H.figure1,'clhandle',K);
+else
+    set(getappdata(H.figure1,'clhandle'),'Visible','Off');
 end
     
 
