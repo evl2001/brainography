@@ -400,7 +400,7 @@ for i = 1:size(ac,1)
     delete(ac(i));
 end
 view([1 0 0]);
-clmo(handlem('light'));
+% clmo(handlem('light'));
 if get(H.checkbox5,'Value')
     set(H.checkbox5,'Value',0);
 end
