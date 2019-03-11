@@ -192,7 +192,7 @@ if volVal == size(volString,1)
 %     if length(handles) > 1
 %         handles(handles(end).currentVol).opacity=get(H.edit1,'String');
 %     end
-    [filename, pathname] = uigetfile({'*.nii;*.img;*.hdr','NIfTI/ANALYZE Files (*.nii,*.hdr,*.img)'}, 'Select a Volume:');
+    [filename, pathname] = uigetfile({'*.nii;*.nii.gz;*.img;*.hdr','NIfTI/ANALYZE Files (*.nii,*.nii.gz,*.hdr,*.img)'}, 'Select a Volume:');
     %     disp(filterindex);
     if isequal(filename,0)
         disp('User selected Cancel')
