@@ -231,8 +231,11 @@ if volVal == size(volString,1)
             tmp.regionvalues = cell(size(tmp.numberROI,1),5);
             tmp.regionvalues(:,1) = num2cell(tmp.numberROI);
             tmp.regionvalues(:,2) = num2cell([1:size(tmp.numberROI,1)]');
-            tmp.regionvalues(:,3:5) = num2cell(getRGBTriple(bone(1.5*size(tmp.numberROI,1)),min(tmp.numberROI),max(tmp.numberROI),tmp.numberROI));
-            
+            if tmp.numberROI > 1
+                tmp.regionvalues(:,3:5) = num2cell(getRGBTriple(bone(1.5*size(tmp.numberROI,1)),min(tmp.numberROI),max(tmp.numberROI),tmp.numberROI));
+            else
+                tmp.regionvalues(1,3:5) = num2cell([0.5 0.5 0.5]);
+            end
             handles=[tmp handles];
             handles(end).currentVol=1;
             guidata(hObject,handles); disp('guidata set');
