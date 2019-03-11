@@ -118,9 +118,7 @@ if length(handles) > 1
     disp(handles);
     % EXECUTE FULL-SCALE IMAGE GENERATION USING GUIDATA(1:end-1)
     figure;
-    if ~isempty(handles.savePathPushButton,'String')
-        handles(end).savePath = handles.savePathPushButton.String;
-    else
+    if ~isfield(handles,'savePath')
         handles(end).savePath = '';
     end
     BrainographyRender(handles,gca,1);
@@ -496,6 +494,8 @@ set(H.checkbox6,'Value',0);
 set(H.pushbutton14,'BackgroundColor',[236/255 214/255 214/255]);
 set(H.pushbutton14,'Enable','Off');
 
+set(H.savePathText,'String','');
+
 resetMyAxes(H);
 
 
@@ -721,8 +721,10 @@ function savePathPushButton_Callback(hObject, eventdata, handles)
 % hObject    handle to savePathPushButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+H = guihandles(hObject);
 savePath = uigetdir('','Select path to save output media');
 if ~isempty(savePath)
-    handles.savePathText.String = savePath;
+    handles(end).savePath = savePath;
+    set(H.savePathText,'String',savePath);
+    guidata(hObject,handles);
 end
