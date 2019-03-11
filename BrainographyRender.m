@@ -41,10 +41,15 @@ for i=1:renderingVols
 end
 
 if settingsStruct.saveImages || settingsStruct.saveMovie
-    if isempty(settingsStruct.figstr)
-        figstr = 'brainography';
+    if isfield(settingsStruct,'savePath')
+        savePath = [settingsStruct.savePath filesep];
     else
-        figstr = settingsStruct.figstr;
+        savePath = '';
+    end
+    if isempty(settingsStruct.figstr)
+        figstr = [savePath 'brainography'];
+    else
+        figstr = [savePath settingsStruct.figstr];
     end
     fig = gcf;
     set(fig, 'Name', figstr);

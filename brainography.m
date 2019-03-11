@@ -23,7 +23,7 @@ dbstop if error
 
 % Edit the above text to modify the response to help brainography
 
-% Last Modified by GUIDE v2.5 09-Jun-2013 18:42:15
+% Last Modified by GUIDE v2.5 11-Mar-2019 12:53:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -108,9 +108,9 @@ varargout{1}=hObject;
 % disp(hObject);
 
 
-% --- Executes on button press in pushbutton2.
-function pushbutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton2 (see GCBO)
+% --- Executes on button press in renderPushButton.
+function renderPushButton_Callback(hObject, eventdata, handles)
+% hObject    handle to renderPushButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 if length(handles) > 1
@@ -118,6 +118,11 @@ if length(handles) > 1
     disp(handles);
     % EXECUTE FULL-SCALE IMAGE GENERATION USING GUIDATA(1:end-1)
     figure;
+    if ~isempty(handles.savePathPushButton,'String')
+        handles(end).savePath = handles.savePathPushButton.String;
+    else
+        handles(end).savePath = '';
+    end
     BrainographyRender(handles,gca,1);
 end
 
@@ -709,3 +714,15 @@ guidata(hObject, initStruct);
 set(H.popupmenu1,'Value',1);
 set(H.popupmenu1,'String',{'+ Add New Volume'});
 defaultGUI(H);
+
+
+% --- Executes on button press in savePathPushButton.
+function savePathPushButton_Callback(hObject, eventdata, handles)
+% hObject    handle to savePathPushButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+savePath = uigetdir('','Select path to save output media');
+if ~isempty(savePath)
+    handles.savePathText.String = savePath;
+end
